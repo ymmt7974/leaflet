@@ -1,0 +1,441 @@
+
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leaflet Sample</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <!-- leaflet -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js" integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.css" integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- leaflet.draw -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js" integrity="sha512-ozq8xQKq6urvuU6jNgkfqAmT7jKN2XumbrX1JiB3TnF7tI48DPI4Gy1GXKD/V3EExgAs1V+pRO7vwtS1LHg0Gw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" integrity="sha512-gc3xjCmIy673V6MyOAZhIW93xhM9ei1I+gLbmFjUHIjocENRsLX/QUE1htk5q1XV2D/iie/VQ8DXI6Vu8bexvQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.js" integrity="sha512-0o6+FFUggr2fg6wf3CO8ONFsK83BgaBUte1X16tsat7rVtzvEUPkUTFloHZ5RB20J7CJebIoo+NtiDNyiw63+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.css" integrity="sha512-gc3xjCmIy673V6MyOAZhIW93xhM9ei1I+gLbmFjUHIjocENRsLX/QUE1htk5q1XV2D/iie/VQ8DXI6Vu8bexvQ==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+  <!-- leaflet.contextmenu -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-contextmenu/1.4.0/leaflet.contextmenu.js" integrity="sha512-CFGYUwcYFH5ixlvTGquEhoM+ggeyW+lO/ostl++x1K+P31EyW5kj+lyFt8HucjybA9VSB0+wffwhOIiFJjhtAQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-contextmenu/1.4.0/leaflet.contextmenu.css" integrity="sha512-sgMNQqQqKbwIukMPRGv16lpaZLXNnWdtgLtzUwrorvhoLyC4QnkuT59T1jq9GTaVoZJJ4bnKjs8lS5shjc02AA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <script src="./js/leaflet.custom.js"></script>
+  
+</head>
+<body>
+  <div class="content container">
+    <h2>Leaflet Sample</h2>
+    <div class="row">
+      <div class="col-12">
+        <img id="img" src="./images/sample.png" style="display: none;"/>
+        <div id="map" class="w-100"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-6">
+        <a href="#" class="btn btn-primary" id="delete">Delete Features</a>
+        <a href="#" class="btn btn-primary" id="export">Export Features</a>
+        <input type="file" id="import" class="my-1">
+      </div>
+      <div class="col-6">
+        <a href="#" class="btn btn-primary" id="btnPolygon">多角形</a>
+        <a href="#" class="btn btn-primary" id="btnRectangle">四角形</a>
+      </div>
+    </div>
+  <script>
+
+    $(function(){
+      // --------------------------------------------------------------------
+      // マップ設定
+      // --------------------------------------------------------------------
+      var imgSrc = $('#img');
+      var mapDiv = $('#map');
+      mapDiv.width(imgSrc.width());
+      // mapDiv.height(imgSrc.height());
+      mapDiv.height(500);
+
+      var image = {
+          url:    imgSrc.attr('src'),
+          width:  imgSrc.width(),
+          height: imgSrc.height(),
+      };
+
+      var minZoom = -0.25, maxNativeZoom = 0, maxZoom = 5, zoomSnap = 0.25;
+      var mapContextmenuItems = [
+        { text: '緯度経度を表示',callback: showLatLng},
+        { text: 'この地点を地図の中央に指定', callback: setCenterMap, disabled: true}
+      ]
+
+      // マップ作成
+      var map = L.map('map', {
+          crs: L.CRS.Simple,
+          minZoom: minZoom,
+          maxZoom: maxZoom,
+          zoomDelta: zoomSnap,
+          zoomSnap: zoomSnap,
+          contextmenu: true,
+          contextmenuWidth: 180,
+          contextmenuItems: mapContextmenuItems,
+      });
+
+      // 画像をバインド
+      var imageBounds = L.latLngBounds([
+          map.unproject([0, image.height], maxNativeZoom),
+          map.unproject([image.width, 0], maxNativeZoom)
+      ]);
+
+      map.fitBounds(imageBounds);
+      map.setMaxBounds(imageBounds.pad(0.5));
+
+      L.imageOverlay(image.url, imageBounds).addTo(map);
+
+
+      // --------------------------------------------------------------------
+      // マーカー設定
+      // --------------------------------------------------------------------
+      var markerItems = new L.FeatureGroup().addTo(map);
+      var markers = [
+        { point:[181.95, 186.71], text: 'マーカー１' },
+        { point:[335.36, 193.84], text: 'マーカー２' }
+      ]
+      var markerOption = {
+        contextmenu: true,
+        contextmenuWidth: 180,
+        contextmenuItems: [
+          { text: '詳細',callback: showDetail},
+          { separator: true },
+          { text: 'a',callback: showDetail},
+          { text: 'b',callback: showDetail},
+        ],
+        contextmenuInheritItems: false,
+      }
+      $.each(markers, function(index, data){
+        var latlng = map.unproject(data.point, maxNativeZoom);
+        var marker = L.marker(latlng, markerOption)
+          .bindPopup(data.text)
+          .addTo(map)
+          .on('mouseover', function() { this.openPopup(); });
+          markerItems.addLayer(marker);
+      })
+
+      // --------------------------------------------------------------------
+      // 図形設定
+      // --------------------------------------------------------------------
+      map.createPane('drawPane');
+      // 図形をまとめるためのオブジェクト
+      var drawnItems = new L.FeatureGroup().addTo(map);
+      // 図形を描くためのコントローラ
+      // 位置のデフォルトは左上ですが、右上に指定を変えています。
+      var drawControl = new L.Control.Draw({
+        draw: {
+          polygon: {
+            shapeOptions: { color: '#badaFF', fillOpacity: 0.5, }
+          },
+          rectangle: {
+            shapeOptions: { fillColor: '#FFFFFF', fillOpacity: 0, }
+          },
+          circle: { 
+            //shapeOptions: { color: '#00FF00', fillOpacity: 0.5, }
+          },
+          // circlemarker: false,
+        },
+        edit: {
+          featureGroup: drawnItems
+        }
+        // ,position: 'topright'
+      }).addTo(map);
+
+      // 多角形：登録ボタン
+      $('#btnPolygon').on('click',function (e) {
+        drawControl._toolbars.draw._modes.polygon.handler.enable();
+      });
+      // 四角形：登録ボタン
+      $('#btnRectangle').on('click',function (e) {
+        drawControl._toolbars.draw._modes.rectangle.handler.enable();
+      });
+
+
+      var marker1 = L.circleMarker([51.441767, 5.470247],{
+        draggable: true
+      }).addTo(map);
+      var someLayerGroup = L.featureGroup();
+      marker1.addTo(someLayerGroup);
+      // --------------
+      // 図形作成
+      // --------------
+      map.on('draw:created', function(e) {
+        var type = e.layerType,
+            layer = e.layer;
+
+        // 右クリックメニュー設定
+        var drawContextMenu = {
+          contextmenu: true,
+          contextmenuWidth: 180,
+          contextmenuItems: [
+            { text: '詳細', callback: showDetail(layer)},
+            { separator: true },
+            { text: '編集_変更', callback: editStart(drawControl, layer) },
+            { text: '編集_キャンセル', callback: editCancel(drawControl, layer) },
+            { text: '編集_完了', callback: editSave(drawControl, layer) },
+            { separator: true },
+            { text: '前面', callback: bringToFront(layer) },
+            { text: '背面', callback: bringToBack(layer) },
+            { text: '最前面', callback: bringToFrontMost(layer) },
+            { text: '最背面', callback: bringToBackMost(layer) },
+          ],
+          contextmenuInheritItems: false,
+        }
+        layer.bindContextMenu(drawContextMenu)
+        L.setOptions(layer, { pane: 'drawPane' })
+        if (type === L.Draw.Circle.TYPE) {
+          layer.bindPopup('circle popup!');
+        }
+
+        drawnItems.addLayer(layer);
+
+        // geojsonに落とす際にpropertiesに値を保持drawnItems.addLayer(e.layer);
+        e.layer.feature = e.layer.feature || {};
+        e.layer.feature.properties = e.layer.feature.properties || {};
+        e.layer.feature.properties.note = e.layer.feature.properties.note || "";
+        e.layer.feature.type = "Feature";
+        setFeatureProperties(e.layer);
+      });
+
+      // --------------
+      // 図形編集
+      // --------------
+      map.on(L.Draw.Event.EDITED, function (e) {
+        e.layers.eachLayer(function (layer) {
+          setFeatureProperties(layer);
+        });
+      });
+
+      // map.on(L.Draw.Event.DRAWSTOP, function (e) {
+      //     const hello = e.target;
+      //     console.log(hello);
+      //     e.target.eachLayer(layer => {
+      //         if (layer.options.icon) {
+      //             console.log(layer);
+      //         }
+      //     });
+      // });
+
+      // 描画物の情報を計算し保持するメソッド
+      var setFeatureProperties = function (layer) {
+        // 線と多角形と四角形
+        if (layer instanceof L.Polyline) {
+          var latlngs = layer._defaultShape ? layer._defaultShape() : layer.getLatLngs();
+          if (latlngs.length >= 2) {
+            var distance = 0;
+            for (var i = 0; i < latlngs.length - 1; i++) {
+              distance += latlngs[i].distanceTo(latlngs[i + 1]);
+            }
+            layer.feature.properties.distance = distance.toFixed(2) + " m"; // ex. distance 3728.81 m
+          }
+          layer.feature.properties.drawtype = L.Draw.Polyline.TYPE;
+        }
+        // 多角形と四角形
+        if (layer instanceof L.Polygon) {
+          var latlngs = layer._defaultShape ? layer._defaultShape() : layer.getLatLngs();
+          var area = L.GeometryUtil.geodesicArea(latlngs);
+          layer.feature.properties.area = L.GeometryUtil.readableArea(area, true); // ex. area 174.19 ha
+          layer.feature.properties.drawtype = L.Draw.Polygon.TYPE;
+        }
+        // 四角形
+        if (layer instanceof L.Rectangle) {
+          layer.feature.properties.drawtype = L.Draw.Rectangle.TYPE;
+        }
+        // 円
+        if (layer instanceof L.Circle) {
+          layer.feature.properties.radius = layer.getRadius().toFixed(2) + " m"; // ex. radius 1097.02 m
+          layer.feature.properties.drawtype = L.Draw.Circle.TYPE;
+        }
+        // マーカー
+        if (layer instanceof L.Marker) {
+          layer.feature.properties.drawtype = L.Draw.Marker.TYPE;
+        }
+      };
+
+
+
+      // functions ----------------------------------------------------------
+      var overlays = {
+      "マーカー": markerItems,
+      "図形": drawnItems
+      };
+      var layerControls = L.control.layers(null,overlays, {collapsed: false}).addTo(map);
+      // レイヤー非表示
+      // map.removeControl(layerControls);
+      
+      // L.polyline(point2latLng(
+      //     [[300, 200], [600, 700], [1000, 300], [1800, 1500], [2700, 900], [4250, 2400]]
+      // ), {
+      //     color: '#ff00db',
+      //     weight: 5 
+      // }).addTo(map);
+
+
+      // functions ----------------------------------------------------------
+
+      function point2latLng(point) {
+          if (L.Util.isArray(point[0])) {
+              var latLngs = [];
+                for(var i=0,len=point.length; i<len; i++) {
+                  latLngs[i] = map.unproject(point[i], maxNativeZoom);
+              }
+              return latLngs;
+          } 
+          return map.unproject(point, maxNativeZoom);
+      }
+
+      function digit_format(num) {
+          return (('    ') + num.toFixed(2)).substr(-8);
+      }
+
+      // 位置表示
+      function showLatLng (e) {
+        var p = map.project(e.latlng, map.getZoom());
+        var pMax = map.project(e.latlng, maxNativeZoom);
+        var content = ''
+                    + 'lng: ' + digit_format(e.latlng.lng)    + ', '
+                    + 'lat: ' + digit_format(e.latlng.lat)    + '\n'
+                    + '  x: ' + digit_format(p.x)    + ', '
+                    + '  y: ' + digit_format(p.y)    + '\n'
+                    + '  X: ' + digit_format(pMax.x) + ', '
+                    + '  Y: ' + digit_format(pMax.y)
+                    + '';
+        // marker.getPopup().setContent(content).openOn(map);
+        alert(content);
+      }
+
+      // 中央に設定
+      function setCenterMap (e) {
+        map.panTo(e.latlng);
+      }
+
+      // 詳細表示
+      function showDetail(layer) {
+        return function (e) {
+          var p = map.project(e.latlng, map.getZoom());
+          var pMax = map.project(e.latlng, maxNativeZoom);
+          var content = '【詳細】'+ '\n'
+                      + 'lng: ' + digit_format(e.latlng.lng)    + ', '
+                      + 'lat: ' + digit_format(e.latlng.lat)    + '\n'
+                      + '  x: ' + digit_format(p.x)    + ', '
+                      + '  y: ' + digit_format(p.y)    + '\n'
+                      + '  X: ' + digit_format(pMax.x) + ', '
+                      + '  Y: ' + digit_format(pMax.y)+ '\n'
+                      + 'leaflet_id:' + layer._leaflet_id + '\n'
+                      + 'options:' + layer.options + '\n'
+                      + '';
+          alert(content);
+        }
+      }
+
+      // --------------------------------------------------------------------
+      $('#delete').on('click',function (e) {
+        drawnItems.clearLayers();
+      });
+      // geoJSONのexportボタン有効化
+      document.getElementById('export').onclick = function (e) {
+        // Extractions GeoJson from featureGroup
+        var geojson = drawnItems.toGeoJSON();
+        // Stringify the GeoJson
+        var convertedData = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(geojson));
+        // Create export
+        document.getElementById('export').setAttribute('href', 'data:' + convertedData);
+        document.getElementById('export').setAttribute('download', 'data.geojson');
+      }
+      // geoJSONのimportボタン有効化
+      document.getElementById('import').onchange = function (e) {
+        var reader = new FileReader();
+        reader.onload = function () {
+          var features;
+          try {
+            features = JSON.parse(reader.result).features;
+          }
+          catch (ex) {
+            console.log("Imported file is not a JSON file.");
+          }
+          // importするfeatureをleaflet.drawで描画したかのように差し込む
+          for (var feature of features) {
+            if (feature.type == 'Feature') {
+              // 線
+              if (feature.geometry.type == 'LineString') {
+                var latlngs = [];
+                for (var point of feature.geometry.coordinates) {
+                  latlngs.push(L.latLng(point[1], point[0]));
+                }
+                var handler = drawControl._toolbars.draw._modes.polyline.handler;
+                var layer = new L.Polyline(latlngs, handler.options.shapeOptions);
+                layer.feature = feature;
+                L.Draw.Feature.prototype._fireCreatedEvent.call(handler, layer);
+              }
+              else if (feature.geometry.type == 'Polygon') {
+                if (feature.properties.drawtype == L.Draw.Rectangle.TYPE) {
+                  // 四角形
+                  var handler = drawControl._toolbars.draw._modes.rectangle.handler;
+                  var corner1 = L.latLng(feature.geometry.coordinates[0][0][1], feature.geometry.coordinates[0][0][0]);
+                  var corner2 = L.latLng(feature.geometry.coordinates[0][2][1], feature.geometry.coordinates[0][2][0]);
+                  var layer = new L.Rectangle(new L.LatLngBounds(corner1, corner2), handler.options.shapeOptions);
+                  layer.feature = feature;
+                  L.Draw.SimpleShape.prototype._fireCreatedEvent.call(handler, layer);
+                }
+                else {
+                  // 多角形
+                  var rings = [];
+                  for (var ring of feature.geometry.coordinates) {
+                    var latlngs = [];
+                    for (var point of ring) {
+                      latlngs.push(L.latLng(point[1], point[0]));
+                    }
+                    latlngs.pop(); // geoJsonのPolygonでは、最後に先頭と同じ点が入ってくるので削る
+                    rings.push(latlngs);
+                  }
+                  var handler = drawControl._toolbars.draw._modes.polygon.handler;
+                  var layer = new L.Polygon(rings, handler.options.shapeOptions);
+                  layer.feature = feature;
+                  L.Draw.Feature.prototype._fireCreatedEvent.call(handler, layer);
+                }
+              }
+              else if (feature.geometry.type == 'Point') {
+                var latlng = L.latLng(feature.geometry.coordinates[1], feature.geometry.coordinates[0]);
+                if (feature.properties.drawtype == L.Draw.Circle.TYPE) {
+                  // 円
+                  var handler = drawControl._toolbars.draw._modes.circle.handler;
+                  var radius = parseFloat(feature.properties.radius); //" m"が勝手にとれるとは…
+                  var layer = new L.Circle(latlng, radius, handler.options.shapeOptions);
+                  layer.feature = feature;
+                  L.Draw.SimpleShape.prototype._fireCreatedEvent.call(handler, layer);
+                }
+                else {
+                  // マーカー
+                  var handler = drawControl._toolbars.draw._modes.marker.handler;
+                  var layer = new L.Marker(latlng, handler.options);
+                  layer.feature = feature;
+                  L.Draw.Feature.prototype._fireCreatedEvent.call(handler, layer);
+                }
+              }
+            }
+          }
+        }
+        console.log("Imported file: " + e.target.files[0].name);
+        reader.readAsText(e.target.files[0]);
+        // input type fileで同じファイルで2回目以降onChangeが発火しない問題への対応（IE10だと下記ではダメらしい）
+        $('input[type=file]').val('');
+      }
+
+      // --------------------------------------------------------------------
+    });
+
+
+    
+  </script>
+  </div>
+</body>
+
+</html>

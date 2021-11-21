@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leaflet Sample</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <!-- leaflet -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js" integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.css" integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- leaflet.draw -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js" integrity="sha512-ozq8xQKq6urvuU6jNgkfqAmT7jKN2XumbrX1JiB3TnF7tI48DPI4Gy1GXKD/V3EExgAs1V+pRO7vwtS1LHg0Gw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" integrity="sha512-gc3xjCmIy673V6MyOAZhIW93xhM9ei1I+gLbmFjUHIjocENRsLX/QUE1htk5q1XV2D/iie/VQ8DXI6Vu8bexvQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.js" integrity="sha512-0o6+FFUggr2fg6wf3CO8ONFsK83BgaBUte1X16tsat7rVtzvEUPkUTFloHZ5RB20J7CJebIoo+NtiDNyiw63+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.css" integrity="sha512-gc3xjCmIy673V6MyOAZhIW93xhM9ei1I+gLbmFjUHIjocENRsLX/QUE1htk5q1XV2D/iie/VQ8DXI6Vu8bexvQ==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+  <!-- leaflet.contextmenu -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-contextmenu/1.4.0/leaflet.contextmenu.js" integrity="sha512-CFGYUwcYFH5ixlvTGquEhoM+ggeyW+lO/ostl++x1K+P31EyW5kj+lyFt8HucjybA9VSB0+wffwhOIiFJjhtAQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-contextmenu/1.4.0/leaflet.contextmenu.css" integrity="sha512-sgMNQqQqKbwIukMPRGv16lpaZLXNnWdtgLtzUwrorvhoLyC4QnkuT59T1jq9GTaVoZJJ4bnKjs8lS5shjc02AA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <script src="./js/leaflet.custom.js"></script>
+  
+</head>
+<body>
+  <div class="content container">
+    <h2>Leaflet Sample</h2>
+    <div class="row">
+      <div class="col-12">
+        <img id="img" src="./images/sample.png" style="display: none;"/>
+        <div id="map" class="w-100"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-6">
+        <a href="#" class="btn btn-primary" id="btnSelectorRectangle">選択</a>
+      </div>
+    </div>
+  <script>
+
+    $(function(){
+      // --------------------------------------------------------------------
+      // マップ設定
+      // --------------------------------------------------------------------
+      var imgSrc = $('#img');
+      var mapDiv = $('#map');
+      mapDiv.width(imgSrc.width());
+      // mapDiv.height(imgSrc.height());
+      mapDiv.height(650);
+
+      var image = {
+          url:    imgSrc.attr('src'),
+          width:  imgSrc.width(),
+          height: imgSrc.height(),
+      };
+
+      var minZoom = -5, maxNativeZoom = 0, maxZoom = 5, zoomSnap = 0.25;
+      // マップ作成
+      var map = L.map('map', {
+          crs: L.CRS.Simple,
+          minZoom: minZoom,
+          maxZoom: maxZoom,
+          zoomDelta: zoomSnap,
+          zoomSnap: zoomSnap,
+      });
+
+      // 画像をバインド
+      var imageBounds = L.latLngBounds([
+          map.unproject([0, image.height], maxNativeZoom),
+          map.unproject([image.width, 0], maxNativeZoom)
+      ]);
+
+      map.fitBounds(imageBounds);
+      map.setMaxBounds(imageBounds.pad(0.5));
+      L.imageOverlay(image.url, imageBounds).addTo(map);
+
+
+      // --------------------------------------------------------------------
+      // 図形設定
+      // --------------------------------------------------------------------
+      map.createPane('drawPane');
+      // 図形をまとめるためのオブジェクト
+      var drawnItems = new L.FeatureGroup().addTo(map);
+      // 図形を描くためのコントローラ
+      // 位置のデフォルトは左上ですが、右上に指定を変えています。
+      var drawControl = new L.Control.Draw({
+        draw: {
+          polygon: {
+            shapeOptions: { color: '#badaFF', fillOpacity: 0.5, }
+          },
+          rectangle: {
+            // shapeOptions: { fillColor: '#AAAAAA', fillOpacity: 0.1, color: '#000000',dashArray: '5, 10', }
+          },
+          circle: { 
+            //shapeOptions: { color: '#00FF00', fillOpacity: 0.5, }
+          },
+          // circlemarker: false,
+        },
+        edit: {
+          featureGroup: drawnItems
+        }
+        // ,position: 'topright'
+      }).addTo(map);
+
+      // 多角形：登録ボタン
+      $('#btnPolygon').on('click',function (e) {
+        drawControl._toolbars.draw._modes.polygon.handler.enable();
+      });
+      // 四角形：登録ボタン
+      $('#btnRectangle').on('click',function (e) {
+        drawControl._toolbars.draw._modes.rectangle.handler.enable();
+      });
+
+      // id
+      var cnt_id = 1;
+
+      // 選択
+      var selector = null;
+      var selectItems = new L.FeatureGroup().addTo(map);
+      // --------------
+      // 図形作成
+      // --------------
+      map.on('draw:created', function(e) {
+        var type = e.layerType,
+            layer = e.layer;
+
+        // 選択の場合
+        if(selector){
+          var corners = [layer._latlngs[0],layer._latlngs[2]]  //retrieve corner of rectangle
+          //do rectangle specific actions
+          drawnItems.eachLayer(function(layer2){
+            if(L.latLngBounds(corners).contains(layer2._latlng)){ //call .contains on an L.LatLngBounds object
+              //set style of the point
+              if (layer2 instanceof L.CircleMarker){
+                layer2.setStyle({color: '#FF0000'});          //.setStyle of L.CircleMarker
+              }
+
+              selectItems.addLayer(layer2);
+            }
+          });
+          selector = null;
+          return;
+        }
+        if (type === L.Draw.Circle.TYPE) {
+          layer.bindPopup('circle popup!');
+        }
+
+        // 右クリックメニュー設定
+        var drawContextMenu = {
+          contextmenu: true,
+          contextmenuWidth: 180,
+          contextmenuItems: [
+            { text: '編集_変更', callback: editStart(drawControl, layer) },
+          ],
+          contextmenuInheritItems: false,
+        }
+        layer.bindContextMenu(drawContextMenu)
+
+        layer.properties = layer.properties || {};
+        layer.properties.id = cnt_id;
+        cnt_id++;
+
+        drawnItems.addLayer(layer);
+      });
+
+      // 削除
+      map.on('draw:deleted', function(e) {
+        layers = e.layers;
+        layers.eachLayer(function (layer) {
+          alert('id:'+ layer.properties.id);
+        });
+      });
+
+      // --------------
+      // 図形編集
+      // --------------
+      map.on(L.Draw.Event.EDITED, function (e) {
+        e.layers.eachLayer(function (layer) {
+          setFeatureProperties(layer);
+        });
+      });
+
+
+
+      // functions ----------------------------------------------------------
+
+      function point2latLng(point) {
+          if (L.Util.isArray(point[0])) {
+              var latLngs = [];
+                for(var i=0,len=point.length; i<len; i++) {
+                  latLngs[i] = map.unproject(point[i], maxNativeZoom);
+              }
+              return latLngs;
+          } 
+          return map.unproject(point, maxNativeZoom);
+      }
+
+      function digit_format(num) {
+          return (('    ') + num.toFixed(2)).substr(-8);
+      }
+
+
+      // 選択
+      $('#btnSelectorRectangle').on('click',function (e) {
+        var options = {shapeOptions: { fillColor: '#AAAAAA', fillOpacity: 0.1, color: '#000000',dashArray: '5, 10', }}
+        selector =  new L.Draw.Rectangle(map, options);
+        selector.enable();
+        selectItems;
+      });
+    });
+
+
+    
+  </script>
+  </div>
+</body>
+
+</html>
