@@ -1,0 +1,410 @@
+
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leaflet Sample</title>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+  <!-- jQuery UI -->
+  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js" integrity="sha256-xH4q8N0pEzrZMaRmd7gQVcTZiFei+HfRTBPJ1OGXC0k=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/smoothness/jquery-ui.css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.0/themes/base/jquery-ui.css">
+
+  <!-- leaflet -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js" integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.css" integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- leaflet.draw -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js" integrity="sha512-ozq8xQKq6urvuU6jNgkfqAmT7jKN2XumbrX1JiB3TnF7tI48DPI4Gy1GXKD/V3EExgAs1V+pRO7vwtS1LHg0Gw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" integrity="sha512-gc3xjCmIy673V6MyOAZhIW93xhM9ei1I+gLbmFjUHIjocENRsLX/QUE1htk5q1XV2D/iie/VQ8DXI6Vu8bexvQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.js" integrity="sha512-0o6+FFUggr2fg6wf3CO8ONFsK83BgaBUte1X16tsat7rVtzvEUPkUTFloHZ5RB20J7CJebIoo+NtiDNyiw63+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.14/leaflet.draw.css" integrity="sha512-gc3xjCmIy673V6MyOAZhIW93xhM9ei1I+gLbmFjUHIjocENRsLX/QUE1htk5q1XV2D/iie/VQ8DXI6Vu8bexvQ==" crossorigin="anonymous" referrerpolicy="no-referrer" /> -->
+  <!-- leaflet.contextmenu -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-contextmenu/1.4.0/leaflet.contextmenu.js" integrity="sha512-CFGYUwcYFH5ixlvTGquEhoM+ggeyW+lO/ostl++x1K+P31EyW5kj+lyFt8HucjybA9VSB0+wffwhOIiFJjhtAQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-contextmenu/1.4.0/leaflet.contextmenu.css" integrity="sha512-sgMNQqQqKbwIukMPRGv16lpaZLXNnWdtgLtzUwrorvhoLyC4QnkuT59T1jq9GTaVoZJJ4bnKjs8lS5shjc02AA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <script src="./js/leaflet.custom.js"></script>
+  
+</head>
+<body>
+  <div class="content container">
+    <h2>Leaflet Sample</h2>
+    <h3>テキスト追加</h3>
+    <div class="row">
+      <div class="col-12">
+        <img id="img" src="./images/sample.png" style="display: none;"/>
+        <div id="map" class="w-100"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-6">
+        <button id="opener" class="btn btn-primary">ダイアログを開く</button>
+      </div>
+    </div>
+
+    <!-- ********************************************* -->
+    <!-- テキスト変更ダイアログ -->
+    <!-- ********************************************* -->
+    <div id="dialog" title="テキスト" class="" >
+      <div class="form-group row">
+        <label for="text-text" class="col-sm-5 col-form-label">文字</label>
+        <div class="col-sm-7">
+          <input type="text" id="text-text" class="form-control">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="text-fontcolor" class="col-sm-5 col-form-label">文字色</label>
+        <div class="col-sm-7">
+          <input type="color" id="text-fontcolor" class="form-control">
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="text-fontsize" class="col-sm-5 col-form-label">文字サイズ</label>
+        <div class="col-sm-7">
+          <select id="text-fontsize" class="form-control">
+            <option value="6">6</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="text-warap" class="col-sm-5 col-form-label">文字配置</label>
+        <div class="col-sm-7">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="text-warap" id="text-h" value="A">
+            <label class="form-check-label" for="text-h">横</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="text-warap" id="text-w" value="B">
+            <label class="form-check-label" for="text-w">縦</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="text-backgroundcolor" class="col-sm-5 col-form-label">背景色</label>
+        <div class="col-sm-7">
+          <input type="color" id="text-backgroundcolor" class="form-control">
+        </div>
+      </div>
+      </div>
+  </div>
+  <style>
+    .ui-dialog {
+      z-index: 10000;
+    }
+
+  .divicon{
+    background:red;
+    text-align: center;
+    font-size: 12px;
+  }
+  </style>
+  <script>
+    $(function(){
+      //すぐにダイアログが開かないようにautoOpen:falseを指定
+      $("#dialog").dialog({ autoOpen: false, width: 300, });
+      //ボタンがクリックされたらダイアログを開く
+      $("#opener").on('click', function() {
+          $("#dialog").dialog("open");
+      });
+
+      // --------------------------------------------------------------------
+      // マップ設定
+      // --------------------------------------------------------------------
+      var imgSrc = $('#img');
+      var mapDiv = $('#map');
+      mapDiv.width(imgSrc.width());
+      // mapDiv.height(imgSrc.height());
+      mapDiv.height(600);
+
+      var image = {
+          url:    imgSrc.attr('src'),
+          width:  imgSrc.width(),
+          height: imgSrc.height(),
+      };
+
+      var minZoom = -5, maxNativeZoom = 0, maxZoom = 5, zoomSnap = 0.25;
+      // マップ作成
+      var map = L.map('map', {
+          crs: L.CRS.Simple,
+          minZoom: minZoom,
+          maxZoom: maxZoom,
+          zoomDelta: zoomSnap,
+          zoomSnap: zoomSnap,
+      });
+
+      // 画像をバインド
+      var imageBounds = L.latLngBounds([
+          map.unproject([0, image.height], maxNativeZoom),
+          map.unproject([image.width, 0], maxNativeZoom)
+      ]);
+
+      map.fitBounds(imageBounds);
+      map.setMaxBounds(imageBounds.pad(0.5));
+      L.imageOverlay(image.url, imageBounds).addTo(map);
+
+
+      // --------------------------------------------------------------------
+      // 図形設定
+      // --------------------------------------------------------------------
+      map.createPane('drawPane');
+      // 図形をまとめるためのオブジェクト
+      var drawnItems = new L.FeatureGroup().addTo(map);
+      // 図形を描くためのコントローラ
+      // 位置のデフォルトは左上ですが、右上に指定を変えています。
+      var drawControl = new L.Control.Draw({
+        draw: {
+          polygon: {
+            shapeOptions: { color: '#badaFF', fillOpacity: 0.5, }
+          },
+          rectangle: {
+            // shapeOptions: { fillColor: '#AAAAAA', fillOpacity: 0.1, color: '#000000',dashArray: '5, 10', }
+          },
+          circle: { 
+            //shapeOptions: { color: '#00FF00', fillOpacity: 0.5, }
+          },
+          // circlemarker: false,
+        },
+        edit: {
+          featureGroup: drawnItems
+        }
+        // ,position: 'topright'
+      }).addTo(map);
+
+      // id
+      var cnt_id = 1;
+
+      // --------------
+      // 図形作成
+      // --------------
+      map.on('draw:created', function(e) {
+        var type = e.layerType,
+            layer = e.layer;
+
+        if (type === L.Draw.Circle.TYPE) {
+          layer.bindPopup('circle popup!');
+        }
+
+        // 右クリックメニュー設定
+        var drawContextMenu = {
+          contextmenu: true,
+          contextmenuWidth: 180,
+          contextmenuItems: [
+            { text: '編集_変更', callback: editStart(drawControl, layer) },
+          ],
+          contextmenuInheritItems: false,
+        }
+        layer.bindContextMenu(drawContextMenu)
+
+        layer.properties = layer.properties || {};
+        layer.properties.id = cnt_id;
+        cnt_id++;
+
+        // *******************************************************
+        // テキスト追加
+        // *******************************************************
+        var layerPos = getLayerStartPosition(type, layer);
+        var textPos = getTextPosition(type, layerPos);
+        const markerHtmlStyles = `
+          background: #FFFFFF;
+          text-align: center;
+          font-size: 12px;
+          color: #000000;
+          border: 1px;`
+        //divIconをセット
+        var divIcon = L.divIcon({
+          // html: 'id:' + layer.properties.id + ", テストテキスト",
+          html: "<div style='" + markerHtmlStyles +"'>テキスト</div>",
+          // className: 'divicon',
+          // iconSize: null,
+          iconSize: [12 * 4 + 6, 20],
+          // iconAnchor: [40,15],
+          // popupAnchor: [0, -10]
+        });
+        var textMarker = L.marker(textPos, {icon: divIcon, draggable:true , fillcolor: 'blue'}).addTo(map);
+
+        // テキスト-コンテキストメニュー
+        var textMarkerContextMenu = {
+          contextmenu: true,
+          contextmenuWidth: 180,
+          contextmenuItems: [
+            { text: '編集_移動', callback: function textDragStart(e) {
+              e.relatedTarget.dragging.enable();
+            }},
+            { text: '編集_移動終了', callback: function textDragEnd(e) {
+              e.relatedTarget.dragging.disable();
+            }},
+            { text: '編集_変更', callback: openChangeText(layer, textMarker) },
+          ],
+          contextmenuInheritItems: false,
+        }
+        textMarker.bindContextMenu(textMarkerContextMenu)
+
+        // テキスト線
+        var textline = L.polyline([layerPos,textPos],{ "color": "black", "weight": 1, "opacity": 0.8}).addTo(map);
+        // テキスト線-ドラッグの設定
+        textMarker.on('drag', function (e){
+          var layerPos;
+          switch (type){
+            case L.Draw.Marker.TYPE:
+            case L.Draw.Circle.TYPE:
+            case L.Draw.CircleMarker.TYPE:
+              layerPos = layer.getLatLng();
+              break;
+            case L.Draw.Polyline.TYPE:
+              layerPos = layer.getLatLngs()[0];
+              break;
+            default:
+              layerPos = layer.getBounds().getCenter();
+              break;
+          }
+          textline.setLatLngs([layerPos,textMarker.getLatLng()]);
+        });
+        // *******************************************************
+
+        drawnItems.addLayer(layer);
+      });
+
+      // 削除
+      map.on('draw:deleted', function(e) {
+        layers = e.layers;
+        layers.eachLayer(function (layer) {
+          alert('id:'+ layer.properties.id);
+        });
+      });
+
+      // --------------
+      // 図形編集
+      // --------------
+      map.on(L.Draw.Event.EDITED, function (e) {
+        // e.layers.eachLayer(function (layer) {
+        //   setFeatureProperties(layer);
+        // });
+      });
+
+
+
+      // functions ----------------------------------------------------------
+
+      function point2latLng(point) {
+          if (L.Util.isArray(point[0])) {
+              var latLngs = [];
+                for(var i=0,len=point.length; i<len; i++) {
+                  latLngs[i] = map.unproject(point[i], maxNativeZoom);
+              }
+              return latLngs;
+          } 
+          return map.unproject(point, maxNativeZoom);
+      }
+
+      function digit_format(num) {
+          return (('    ') + num.toFixed(2)).substr(-8);
+      }
+
+      // *****************************
+      // テキスト編集_変更
+      // *****************************
+      function openChangeText(layer, textMarker) {
+        return function (e) {
+          var lOpt = layer.options;
+          var tOpt = textMarker.options;
+          var tIcon = tOpt.icon;
+          var tIconHtml = jQuery(jQuery.parseHTML(tIcon.options.html));
+
+          // 初期値設定
+          $("#text-text").val(tIconHtml.text());
+          $("#text-fontsize").val(tIconHtml.css('font-size').replace('px',''));
+          $("#text-fontcolor").val(rgbtohex(tIconHtml.css('color')));
+          $("#text-backgroundcolor").val(rgbtohex(tIconHtml.css('background')));
+          if (tIcon.options.iconSize === null){
+            $("#text-h").prop('checked');
+          } else {
+            $("#text-w").prop('checked');
+          }
+
+          $("#dialog").dialog({
+            modal: true,
+            title: "テキスト変更",
+            buttons: { 
+              "OK": function() {
+                // 属性変更
+                var opt = layer.options;
+                $(this).dialog("close");
+              },
+              "キャンセル": function() {
+                $(this).dialog("close"); 
+                }
+			      }
+          });
+          $("#dialog").dialog("open");
+        }
+      }
+      
+      //rgbからhexに変換
+      function rgbtohex(orig){
+      var rgb = orig.replace(/\s/g,'').match(/^rgba?\((\d+),(\d+),(\d+)/i);
+      return (rgb && rgb.length === 4) ? "#" +
+        ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
+        ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
+        ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : orig;
+      }
+
+      function getLayerStartPosition(type, layer) {
+        var layerStartPos;
+        switch (type){
+          case L.Draw.Marker.TYPE:
+          case L.Draw.Circle.TYPE:
+          case L.Draw.CircleMarker.TYPE:
+            layerStartPos = layer.getLatLng();
+            break;
+          case L.Draw.Polyline.TYPE:
+            layerStartPos = layer.getLatLngs()[0];
+            break;
+          default:
+            layerStartPos = layer.getBounds().getCenter();
+            break;
+        }
+        return layerStartPos;
+      }
+
+      // テキスト位置取得
+      function getTextPosition(type, layerStartPos) {
+        var textPos = layerStartPos.clone();
+        switch (type){
+          case L.Draw.Marker.TYPE:
+          case L.Draw.Circle.TYPE:
+          case L.Draw.CircleMarker.TYPE:
+          case L.Draw.Polyline.TYPE:
+            textPos.lat -= 30;
+            break;
+          case L.Draw.Polygon.TYPE:
+          case L.Draw.Rectangle.TYPE:
+            break;
+          default:
+            break;
+        }
+        return textPos;
+      }
+    });
+
+
+    
+  </script>
+</body>
+
+</html>
